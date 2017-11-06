@@ -2,9 +2,11 @@ package solution;
 
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 public class Trees {
 
@@ -29,7 +31,7 @@ public class Trees {
 		root.right = left;
 		return root;
 	}
-	
+
 	/*
 	 * Pre-order a tree using iteration.
 	 * Assumption: if root is null, then retur a empty list
@@ -84,7 +86,7 @@ public class Trees {
 		}
 		return sol;
 	}
-	
+
 	/*
 	 * In-order a tree using iteration.
 	 * Assumptions: if a root is empty, then return a empty list.
@@ -118,7 +120,7 @@ public class Trees {
 		}
 		return sol;
 	}
-	
+
 	/*
 	 * In-order a tree recursively. 
 	 * Assumption: if root is null, then return an empty list
@@ -139,7 +141,7 @@ public class Trees {
 		inorderRecursion(node.right, sol);
 
 	}
-	
+
 	/*
 	 * post order a tree using iteration
 	 * Assumptions: if the root is null, then return an empty list
@@ -184,7 +186,7 @@ public class Trees {
 		}while(!stack.isEmpty());
 		return sol;
 	}
-	
+
 	/*
 	 * Post-order a tree recursively
 	 * Assumptions: if root is null, then return the empty list
@@ -220,7 +222,7 @@ public class Trees {
 	 * 
 	 * Time: o(n)	Space: o(n)
 	 */
-	
+
 	public static List<List<Integer>> layerByLayer(TreeNode root) {
 		List<List<Integer>> sol = new ArrayList<List<Integer>>();
 		if (root == null) {
@@ -316,11 +318,26 @@ public class Trees {
 		return Math.max(left, right) + 1;
 	}
 
+	/*
+	 * Check if a tree is a binary search tree.
+	 * Assumptions: if the root is null, then we return true.
+	 * 
+	 * Steps: First step, take the int_max and int_min as boundary
+	 * 		  if root value smaller then int_min or greater than init_max, then
+	 * 		  return false,
+	 *        Otherwise take root.value as min and max, go though the left subtree and 
+	 *        right subtree. if all treeNodes have been checked, then return true. if any
+	 *        in valid, return false;
+	 * 
+	 * Return true if a tree is a valid BST, otherwise return false.
+	 * 
+	 * Time: O(n). Space:(logn)
+	 * 
+	 */
 	public boolean isBST(TreeNode root) {
 		return checkBST(root, Integer.MAX_VALUE, Integer.MIN_VALUE);
 
 	}
-
 	private static boolean checkBST(TreeNode curr, int max, int min) {
 		if (curr == null){
 			return true;
@@ -332,55 +349,181 @@ public class Trees {
 
 	}
 
+	/*
+	 * Check if a tree is a complete bst. 
+	 * The key concept of bst: If a treeNode does not a full TreeNode, then
+	 * 						   the following treeNodes must be the leaf nodes.
+	 * 		 				   If a treeNode does not have left child, then its
+	 * 					       right child must be null. If not, then return false.
+	 * 
+	 * Steps: go through the whole tree level by level.
+	 * 		  Case 1: if we see a node does not have right child, then other nodes
+	 * 		  must be leaf node. If any other node has children, return false.
+	 * 	      Case 2: If we see a node does not have left child, then it must be a leaf node
+	 * 		  if it has right child, or any other following node in same level has children,
+	 * 	      return false.
+	 * 		  After all node have been checked, return true.
+	 * 
+	 * Return a boolean
+	 * 
+	 * Time: O(n). Space: o(n)
+	 * 
+	 */
 	public boolean isCompleteBST(TreeNode root){
 		if(root == null){
-	 		return true;
-	 	}
-	 	Queue<TreeNode> q = new LinkedList<TreeNode> ();
-	 	boolean noChild = false;
-	 	q.offer(root);
-	 	
-	 	while(!q.isEmpty()){
-	 		TreeNode curr = q.poll();
-	 		if(curr.left == null){
- 				noChild = true;
- 			} else if(noChild){
-	 			return false;
-	 		} else if(curr.left != null){
-	 			q.offer(curr.left);
-	 		}
-	 		if(curr.right == null){
-	 			noChild = true;
-	 		} else if(noChild){
-	 			return false;
-	 		} else if(curr.right != null){
-	 			q.offer(curr.right);
-	 		}
-	 	}
-	 	return true;
+			return true;
+		}
+		Queue<TreeNode> q = new LinkedList<TreeNode> ();
+		boolean noChild = false;
+		q.offer(root);
+
+		while(!q.isEmpty()){
+			TreeNode curr = q.poll();
+			if(curr.left == null){
+				noChild = true;
+			} else if(noChild){
+				return false;
+			} else if(curr.left != null){
+				q.offer(curr.left);
+			}
+			if(curr.right == null){
+				noChild = true;
+			} else if(noChild){
+				return false;
+			} else if(curr.right != null){
+				q.offer(curr.right);
+			}
+		}
+		return true;
 	}
-	
-	public boolean twoSumBST(TreeNode root, int target){
-		//TODO 
+
+	/*
+	 * two sum in binary tree.
+	 * Method one: use a hashset to save the visited value,
+	 * 			   Once we found the hashSet contains(target - current node),
+	 * 			   then return true. After all values have checked, return false.
+	 * 
+	 * Mathod two: two directions in-order
+	 * 			   Use a normal in-order and reversed in-order, get the left value and
+	 * 		       right value. if left + right == target, teturn true, if smeller than
+	 * 	   		   left value, then run normal in-order to get a bigger value. if greater
+	 * 			   then target, then run reversed in-order to get smaller value. After all
+	 * 			   values have been checked, which is left value > right value, return false.
+	 * 
+	 * Return a boolean
+	 *
+	 *
+	 */
+	public boolean twoSumBSTInoder(TreeNode root, int target){
 		if(root == null){
 			return false;
 		}
+		Deque<TreeNode> leftStack = new LinkedList<> ();
+		Deque<TreeNode> rightStack = new LinkedList<> ();
+		TreeNode leftCurr = root;
+		TreeNode rightCurr = root;
+		boolean stopLeft = false;
+		boolean stopRight = false;
+		int leftVal = 0, rightVal = 0;
+		while(true){
+			while(!stopLeft){
+				if(leftCurr != null){
+					leftStack.push(leftCurr);
+					leftCurr = leftCurr.left;
+				} else {
+					if(leftStack.isEmpty()){
+						stopLeft = true;
+					} else {
+						leftCurr = leftStack.pop();
+						leftVal = leftCurr.key;
+						leftCurr = leftCurr.right;
+						stopLeft = true;
+					}
+				}
+			}
+			while(!stopRight){
+				if(rightCurr != null){
+					rightStack.push(rightCurr);
+					rightCurr = rightCurr.right;
+				} else{
+					if(rightStack.isEmpty()){
+						stopRight = true;
+					}else {
+						rightCurr = rightStack.pop();
+						rightVal = rightCurr.key;
+						rightCurr = rightCurr.left;
+						stopRight = true;
+					}
+				}
+			}
+			if(leftVal != rightVal && leftVal + rightVal == target){
+				return true;
+			} else if(leftVal + rightVal < target){
+				stopLeft = false;
+			} else if(leftVal + rightVal > target) {
+				stopRight = false;
+			}
+			if(leftVal >= rightVal){
+				return false;
+			}
+		}
+	}
+
+	public boolean twoSumBSTHashSet(TreeNode root, int target){
+		if (root == null){
+			return false;
+		}
+		Set<Integer> set = new HashSet<> ();
+		Queue<TreeNode> queue = new LinkedList<>();
+		queue.offer(root);
+		while(!queue.isEmpty()){
+			TreeNode curr = queue.poll();
+			if(set.contains(target - curr.key)){
+				return true;
+			} else {
+				set.add(curr.key);
+			}
+			if(curr.left != null){
+				queue.offer(curr.left);
+			}
+			if(curr.right != null){
+				queue.offer(curr.right);
+			}
+		}
 		return false;
 	}
-	
+
+	/*
+	 * Remove all TreeNode that is not in the range
+	 * 
+	 * Assumptions: if root is null, then return root,
+	 * 
+	 * Steps: Case 1: if root.key < min, then we recursively call functions on
+	 * 		          root.right
+	 * 		  Case 2: if toot.key > max, then we recursively call functions on
+	 * 				  root.left.
+	 * 		  Case 3: we recursively call functions on left and right.
+	 * 
+	 *  Return root.
+	 *  
+	 *  Time: o(n) Space: (logn)
+	 */
 	public TreeNode removeRange(TreeNode root, int min, int max){
+		if(root == null){
+			return root;
+		}
 		if(root.key <= min){
 			return removeRange(root.right, min, max);
 		}
 		if(root.key >= max){
 			return removeRange(root.left, min, max);
 		}
-		
+
 		root.left = removeRange(root.left, min, max);
 		root.right = removeRange(root.right, min, max);
 		return root;
 	}
-	
+
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
